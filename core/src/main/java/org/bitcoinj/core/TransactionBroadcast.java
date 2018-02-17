@@ -16,12 +16,13 @@
 
 package org.bitcoinj.core;
 
-import com.google.common.annotations.*;
-import com.google.common.base.*;
-import com.google.common.util.concurrent.*;
-import org.bitcoinj.utils.*;
-import org.bitcoinj.wallet.Wallet;
-import org.slf4j.*;
+import org.bitcoinj.utils.Threading;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.*;
 import java.util.*;
@@ -34,8 +35,9 @@ import org.bitcoinj.core.listeners.PreMessageReceivedEventListener;
  * Represents a single transaction broadcast that we are performing. A broadcast occurs after a new transaction is created
  * (typically by a {@link Wallet} and needs to be sent to the network. A broadcast can succeed or fail. A success is
  * defined as seeing the transaction be announced by peers via inv messages, thus indicating their acceptance. A failure
- * is defined as not reaching acceptance within a timeout period, or getting an explicit reject message from a peer
- * indicating that the transaction was not acceptable.
+ * is defined as not reaching acceptance within a timeout period, or getting an explicit error message from peers
+ * indicating that the transaction was not acceptable (this isn't currently implemented in v0.8 of the network protocol
+ * but should be coming in 0.9).
  */
 public class TransactionBroadcast {
     private static final Logger log = LoggerFactory.getLogger(TransactionBroadcast.class);
@@ -196,9 +198,8 @@ public class TransactionBroadcast {
                 //
                 // We're done! It's important that the PeerGroup lock is not held (by this thread) at this
                 // point to avoid triggering inversions when the Future completes.
-                log.info("broadcastTransaction: {} complete", tx.getHash());
-                peerGroup.removePreMessageReceivedEventListener(rejectionListener);
-                conf.removeEventListener(this);
+                log.info("broadcastTransaction: {} complete", tx.getHashAsString());
+                tx.getConfidence().removeEventListener(this);
                 future.set(tx);  // RE-ENTRANCY POINT
             }
         }

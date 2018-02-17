@@ -17,9 +17,9 @@
 
 package org.bitcoinj.net.discovery;
 
-import org.bitcoinj.core.*;
-import org.bitcoinj.utils.*;
-
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.utils.ContextPropagatingThreadFactory;
+import org.bitcoinj.utils.DaemonThreadFactory;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -72,7 +72,7 @@ public class DnsDiscovery extends MultiplexingDiscovery {
         else
             return Executors.newFixedThreadPool(seeds.size(), new DaemonThreadFactory("DNS seed lookups"));
     }
-
+    
     /** Implements discovery from a single DNS host. */
     public static class DnsSeedDiscovery implements PeerDiscovery {
         private final String hostname;

@@ -16,8 +16,8 @@
 
 package wallettemplate;
 
-import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.utils.MonetaryFormat;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -33,7 +33,6 @@ import wallettemplate.controls.NotificationBarPane;
 import wallettemplate.utils.BitcoinUIModel;
 import wallettemplate.utils.easing.EasingMode;
 import wallettemplate.utils.easing.ElasticInterpolator;
-
 import static wallettemplate.Main.bitcoin;
 
 /**

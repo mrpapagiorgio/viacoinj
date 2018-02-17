@@ -36,7 +36,7 @@ public class NativePeerEventListener implements PeerConnectionEventListener, Pee
 
     @Override
     public native void onBlocksDownloaded(Peer peer, Block block, @Nullable FilteredBlock filteredBlock, int blocksLeft);
-
+    
     @Override
     public native void onChainDownloadStarted(Peer peer, int blocksLeft);
 

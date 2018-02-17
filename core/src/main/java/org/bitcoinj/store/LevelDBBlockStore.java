@@ -17,8 +17,12 @@
 package org.bitcoinj.store;
 
 import org.bitcoinj.core.*;
-import org.fusesource.leveldbjni.*;
-import org.iq80.leveldb.*;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBFactory;
+import org.iq80.leveldb.DBIterator;
+import org.iq80.leveldb.Options;
+import org.iq80.leveldb.WriteBatch;
 
 import javax.annotation.*;
 import java.io.*;

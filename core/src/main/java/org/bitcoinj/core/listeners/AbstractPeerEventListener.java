@@ -35,11 +35,7 @@ public abstract class AbstractPeerEventListener extends AbstractPeerDataEventLis
     @Override
     public void onBlocksDownloaded(Peer peer, Block block, @Nullable FilteredBlock filteredBlock, int blocksLeft) {
     }
-
-    @Override
-    public void onChainDownloadStarted(Peer peer, int blocksLeft) {
-    }
-
+    
     @Override
     public Message onPreMessageReceived(Peer peer, Message m) {
         // Just pass the message right through for further processing.
@@ -61,9 +57,5 @@ public abstract class AbstractPeerEventListener extends AbstractPeerDataEventLis
 
     @Override
     public void onPeerConnected(Peer peer, int peerCount) {
-    }
-
-    @Override
-    public void onPeerDisconnected(Peer peer, int peerCount) {
     }
 }

@@ -795,11 +795,11 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
             if (key.equals(externalParentKey)) {
                 detKey.setIssuedSubkeys(issuedExternalKeys);
                 detKey.setLookaheadSize(lookaheadSize);
-                detKey.setSigsRequiredToSpend(getSigsRequiredToSpend());
+                //detKey.setSigsRequiredToSpend(getSigsRequiredToSpend());
             } else if (key.equals(internalParentKey)) {
                 detKey.setIssuedSubkeys(issuedInternalKeys);
                 detKey.setLookaheadSize(lookaheadSize);
-                detKey.setSigsRequiredToSpend(getSigsRequiredToSpend());
+                //detKey.setSigsRequiredToSpend(getSigsRequiredToSpend());
             }
             // Flag the very first key of following keychain.
             if (entries.isEmpty() && isFollowing()) {

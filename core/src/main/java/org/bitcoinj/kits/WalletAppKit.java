@@ -17,16 +17,26 @@
 
 package org.bitcoinj.kits;
 
-import com.google.common.collect.*;
 import com.google.common.util.concurrent.*;
 import org.bitcoinj.core.listeners.*;
 import org.bitcoinj.core.*;
-import org.bitcoinj.net.discovery.*;
-import org.bitcoinj.protocols.channels.*;
-import org.bitcoinj.store.*;
-import org.bitcoinj.wallet.*;
-import org.slf4j.*;
-
+import org.bitcoinj.net.discovery.DnsDiscovery;
+import org.bitcoinj.net.discovery.PeerDiscovery;
+import org.bitcoinj.protocols.channels.StoredPaymentChannelClientStates;
+import org.bitcoinj.protocols.channels.StoredPaymentChannelServerStates;
+import org.bitcoinj.store.BlockStore;
+import org.bitcoinj.store.BlockStoreException;
+import org.bitcoinj.store.SPVBlockStore;
+import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.wallet.KeyChainGroup;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.AbstractIdleService;
+import org.bitcoinj.wallet.Protos;
+import org.bitcoinj.wallet.Wallet;
+import org.bitcoinj.wallet.WalletExtension;
+import org.bitcoinj.wallet.WalletProtobufSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.annotation.*;
 import java.io.*;
 import java.net.*;
@@ -77,6 +87,7 @@ public class WalletAppKit extends AbstractIdleService {
     protected boolean autoStop = true;
     protected InputStream checkpoints;
     protected boolean blockingStartup = true;
+    protected boolean useTor = false;   // Perhaps in future we can change this to true.
     protected String userAgent, version;
     protected WalletProtobufSerializer.WalletFactory walletFactory;
     @Nullable protected DeterministicSeed restoreFromSeed;
@@ -148,8 +159,6 @@ public class WalletAppKit extends AbstractIdleService {
      * (https://bitcoinj.github.io/speeding-up-chain-sync) for further details.
      */
     public WalletAppKit setCheckpoints(InputStream checkpoints) {
-        if (this.checkpoints != null)
-            Utils.closeUnchecked(this.checkpoints);
         this.checkpoints = checkNotNull(checkpoints);
         return this;
     }
@@ -175,6 +184,16 @@ public class WalletAppKit extends AbstractIdleService {
         this.version = checkNotNull(version);
         return this;
     }
+    
+    /**
+     * If called, then an embedded Tor client library will be used to connect to the P2P network. The user does not need
+     * any additional software for this: it's all pure Java. As of April 2014 <b>this mode is experimental</b>.
+     */
+    public WalletAppKit useTor() {
+        this.useTor = true;
+        return this;
+    }
+
 
     /**
      * Sets a wallet factory which will be used when the kit creates a new wallet.

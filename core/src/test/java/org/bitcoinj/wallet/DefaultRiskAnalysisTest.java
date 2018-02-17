@@ -17,7 +17,8 @@
 
 package org.bitcoinj.wallet;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.*;
 import org.bitcoinj.params.*;
@@ -204,27 +205,6 @@ public class DefaultRiskAnalysisTest {
     }
 
     @Test
-    public void standardOutputs() throws Exception {
-        Transaction tx = new Transaction(PARAMS);
-        tx.addInput(PARAMS.getGenesisBlock().getTransactions().get(0).getOutput(0));
-        // A pay to address output
-        tx.addOutput(Coin.CENT, ScriptBuilder.createOutputScript(key1.toAddress(PARAMS)));
-        // A pay to pubkey output
-        tx.addOutput(Coin.CENT, ScriptBuilder.createOutputScript(key1));
-        tx.addOutput(Coin.CENT, ScriptBuilder.createOutputScript(key1));
-        // 1-of-2 multisig output.
-        ImmutableList<ECKey> keys = ImmutableList.of(key1, new ECKey());
-        tx.addOutput(Coin.CENT, ScriptBuilder.createMultiSigOutputScript(1, keys));
-        // 2-of-2 multisig output.
-        tx.addOutput(Coin.CENT, ScriptBuilder.createMultiSigOutputScript(2, keys));
-        // P2SH
-        tx.addOutput(Coin.CENT, ScriptBuilder.createP2SHOutputScript(1, keys));
-        // OP_RETURN
-        tx.addOutput(Coin.CENT, ScriptBuilder.createOpReturnScript("hi there".getBytes()));
-        assertEquals(RiskAnalysis.Result.OK, DefaultRiskAnalysis.FACTORY.create(wallet, tx, NO_DEPS).analyze());
-    }
-
-    @Test
     public void optInFullRBF() throws Exception {
         Transaction tx = FakeTxBuilder.createFakeTx(PARAMS);
         tx.getInput(0).setSequenceNumber(TransactionInput.NO_SEQUENCE - 2);
@@ -264,5 +244,26 @@ public class DefaultRiskAnalysisTest {
         analysis = DefaultRiskAnalysis.FACTORY.create(wallet, tx, NO_DEPS);
         assertEquals(RiskAnalysis.Result.NON_STANDARD, analysis.analyze());
         assertEquals(tx, analysis.getNonStandard());
+    }
+
+    @Test
+    public void standardOutputs() throws Exception {
+        Transaction tx = new Transaction(PARAMS);
+        tx.addInput(PARAMS.getGenesisBlock().getTransactions().get(0).getOutput(0));
+        // A pay to address output
+        tx.addOutput(Coin.CENT, ScriptBuilder.createOutputScript(key1.toAddress(PARAMS)));
+        // A pay to pubkey output
+        tx.addOutput(Coin.CENT, ScriptBuilder.createOutputScript(key1));
+        tx.addOutput(Coin.CENT, ScriptBuilder.createOutputScript(key1));
+        // 1-of-2 multisig output.
+        ImmutableList<ECKey> keys = ImmutableList.of(key1, new ECKey());
+        tx.addOutput(Coin.CENT, ScriptBuilder.createMultiSigOutputScript(1, keys));
+        // 2-of-2 multisig output.
+        tx.addOutput(Coin.CENT, ScriptBuilder.createMultiSigOutputScript(2, keys));
+        // P2SH
+        tx.addOutput(Coin.CENT, ScriptBuilder.createP2SHOutputScript(1, keys));
+        // OP_RETURN
+        tx.addOutput(Coin.CENT, ScriptBuilder.createOpReturnScript("hi there".getBytes()));
+        assertEquals(RiskAnalysis.Result.OK, DefaultRiskAnalysis.FACTORY.create(wallet, tx, NO_DEPS).analyze());
     }
 }

@@ -1,6 +1,5 @@
 /*
  * Copyright 2012 Matt Corallo.
- * Copyright 2014 Kalpesh Parmar.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +17,8 @@
 package org.bitcoinj.store;
 
 import org.bitcoinj.core.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -27,49 +28,54 @@ import java.util.List;
 // Originally written for Apache Derby, but its DELETE (and general) performance was awful
 /**
  * A full pruned block store using the H2 pure-java embedded database.
- *
+ * 
  * Note that because of the heavy delete load on the database, during IBD,
  * you may see the database files grow quite large (around 1.5G).
  * H2 automatically frees some space at shutdown, so close()ing the database
  * decreases the space usage somewhat (to only around 1.3G).
  */
-public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
+public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore{
+    private static final Logger log = LoggerFactory.getLogger(H2FullPrunedBlockStore.class);
+    
     private static final String H2_DUPLICATE_KEY_ERROR_CODE = "23505";
     private static final String DATABASE_DRIVER_CLASS = "org.h2.Driver";
     private static final String DATABASE_CONNECTION_URL_PREFIX = "jdbc:h2:";
 
-    // create table SQL
-    private static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings ( "
-            + "name VARCHAR(32) NOT NULL CONSTRAINT settings_pk PRIMARY KEY,"
-            + "value BLOB"
-            + ")";
+    private StoredBlock chainHeadBlock;
+    private ThreadLocal<Connection> conn;
+   
+    static final String driver = "org.h2.Driver";
+    static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings ( "
+        + "name VARCHAR(32) NOT NULL CONSTRAINT settings_pk PRIMARY KEY,"
+        + "value BLOB"
+        + ")";
+    static final String CHAIN_HEAD_SETTING = "chainhead";
+    static final String VERIFIED_CHAIN_HEAD_SETTING = "verifiedchainhead";
+    static final String VERSION_SETTING = "version";
 
-    private static final String CREATE_HEADERS_TABLE = "CREATE TABLE headers ( "
-            + "hash BINARY(28) NOT NULL CONSTRAINT headers_pk PRIMARY KEY,"
-            + "chainwork BLOB NOT NULL,"
-            + "height INT NOT NULL,"
-            + "header BLOB NOT NULL,"
-            + "wasundoable BOOL NOT NULL"
-            + ")";
-
-    private static final String CREATE_UNDOABLE_TABLE = "CREATE TABLE undoableblocks ( "
-            + "hash BINARY(28) NOT NULL CONSTRAINT undoableblocks_pk PRIMARY KEY,"
-            + "height INT NOT NULL,"
-            + "txoutchanges BLOB,"
-            + "transactions BLOB"
-            + ")";
-
-    private static final String CREATE_OPEN_OUTPUT_TABLE = "CREATE TABLE openoutputs ("
-            + "hash BINARY(32) NOT NULL,"
-            + "index INT NOT NULL,"
-            + "height INT NOT NULL,"
-            + "value BIGINT NOT NULL,"
-            + "scriptbytes BLOB NOT NULL,"
-            + "toaddress VARCHAR(35),"
-            + "addresstargetable TINYINT,"
-            + "coinbase BOOLEAN,"
-            + "PRIMARY KEY (hash, index),"
-            + ")";
+    static final String CREATE_HEADERS_TABLE = "CREATE TABLE headers ( "
+        + "hash BINARY(28) NOT NULL CONSTRAINT headers_pk PRIMARY KEY,"
+        + "chainWork BLOB NOT NULL,"
+        + "height INT NOT NULL,"
+        + "header BLOB NOT NULL,"
+        + "wasUndoable BOOL NOT NULL"
+        + ")";
+    
+    static final String CREATE_UNDOABLE_TABLE = "CREATE TABLE undoableBlocks ( "
+        + "hash BINARY(28) NOT NULL CONSTRAINT undoableBlocks_pk PRIMARY KEY,"
+        + "height INT NOT NULL,"
+        + "txOutChanges BLOB,"
+        + "transactions BLOB"
+        + ")";
+    
+    static final String CREATE_OPEN_OUTPUT_TABLE = "CREATE TABLE openOutputs ("
+        + "hash BINARY(32) NOT NULL,"
+        + "index INT NOT NULL,"
+        + "height INT NOT NULL,"
+        + "value BLOB NOT NULL,"
+        + "scriptBytes BLOB NOT NULL,"
+        + "PRIMARY KEY (hash, index),"
+        + ")";
 
     // Some indexes to speed up inserts
     private static final String CREATE_OUTPUTS_ADDRESS_MULTI_INDEX      = "CREATE INDEX openoutputs_hash_index_height_toaddress_idx ON openoutputs (hash, index, height, toaddress)";
@@ -77,7 +83,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     private static final String CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX  = "CREATE INDEX openoutputs_addresstargetable_idx ON openoutputs (addresstargetable)";
     private static final String CREATE_OUTPUTS_HASH_INDEX               = "CREATE INDEX openoutputs_hash_idx ON openoutputs (hash)";
     private static final String CREATE_UNDOABLE_TABLE_INDEX             = "CREATE INDEX undoableblocks_height_idx ON undoableblocks (height)";
-
+    
     /**
      * Creates a new H2FullPrunedBlockStore, with given credentials for H2 database
      * @param params A copy of the NetworkParameters used
@@ -91,7 +97,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
             int fullStoreDepth) throws BlockStoreException {
         super(params, DATABASE_CONNECTION_URL_PREFIX + dbName + ";create=true;LOCK_TIMEOUT=60000;DB_CLOSE_ON_EXIT=FALSE", fullStoreDepth, username, password, null);
     }
-
+    
     /**
      * Creates a new H2FullPrunedBlockStore
      * @param params A copy of the NetworkParameters used
@@ -103,7 +109,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
             throws BlockStoreException {
         this(params, dbName, null, null, fullStoreDepth);
     }
-
+ 
     /**
      * Creates a new H2FullPrunedBlockStore with the given cache size
      * @param params A copy of the NetworkParameters used
@@ -117,6 +123,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     public H2FullPrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth, int cacheSize)
             throws BlockStoreException {
         this(params, dbName, fullStoreDepth);
+        
         try {
             Statement s = conn.get().createStatement();
             s.executeUpdate("SET CACHE_SIZE " + cacheSize);
@@ -125,12 +132,13 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
             throw new BlockStoreException(e);
         }
     }
-
+    
     @Override
     protected String getDuplicateKeyErrorCode() {
         return H2_DUPLICATE_KEY_ERROR_CODE;
     }
 
+    
     @Override
     protected List<String> getCreateTablesSQL() {
         List<String> sqlStatements = new ArrayList<>();
@@ -140,7 +148,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
         sqlStatements.add(CREATE_OPEN_OUTPUT_TABLE);
         return sqlStatements;
     }
-
+    
     @Override
     protected List<String> getCreateIndexesSQL() {
         List<String> sqlStatements = new ArrayList<>();
@@ -151,7 +159,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
         sqlStatements.add(CREATE_OUTPUTS_TOADDRESS_INDEX);
         return sqlStatements;
     }
-
+    
     @Override
     protected List<String> getCreateSchemeSQL() {
         // do nothing
@@ -161,5 +169,29 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     @Override
     protected String getDatabaseDriverClass() {
         return DATABASE_DRIVER_CLASS;
+    }
+        
+   
+    @Override
+    public StoredBlock getChainHead() throws BlockStoreException {
+        return chainHeadBlock;
+    }
+
+    @Override
+    public void setChainHead(StoredBlock chainHead) throws BlockStoreException {
+        Sha256Hash hash = chainHead.getHeader().getHash();
+        this.chainHeadHash = hash;
+        this.chainHeadBlock = chainHead;
+        maybeConnect();
+        try {
+            PreparedStatement s = conn.get()
+                .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
+            s.setString(2, CHAIN_HEAD_SETTING);
+            s.setBytes(1, hash.getBytes());
+            s.executeUpdate();
+            s.close();
+        } catch (SQLException ex) {
+            throw new BlockStoreException(ex);
+        }
     }
 }

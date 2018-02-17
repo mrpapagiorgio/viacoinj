@@ -219,13 +219,9 @@ public class ChildKeyDerivationTest {
             assertArrayEquals(new byte[]{4, -120, -78, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, -68, 93, -104, -97, 31, -105, -18, 109, 112, 104, 45, -77, -77, 18, 85, -29, -120, 86, -113, 26, 48, -18, -79, -110, -6, -27, 87, 86, 24, 124, 99, 3, 96, -33, -14, 67, -19, -47, 16, 76, -49, -11, -30, -123, 7, 56, 101, 91, 74, 125, -127, 61, 42, -103, 90, -93, 66, -36, 2, -126, -107, 30, 24, -111}, pub);
             assertArrayEquals(new byte[]{4, -120, -83, -28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, -68, 93, -104, -97, 31, -105, -18, 109, 112, 104, 45, -77, -77, 18, 85, -29, -120, 86, -113, 26, 48, -18, -79, -110, -6, -27, 87, 86, 24, 124, 99, 0, -96, -75, 47, 90, -49, 92, -74, 92, -128, -125, 23, 38, -10, 97, -66, -19, 50, -112, 30, -111, -57, -124, 118, -86, 126, -35, -4, -51, 19, 109, 67, 116}, priv);
             assertEquals(DeterministicKey.deserializeB58(null, priv58, params), key1);
-            assertEquals(DeterministicKey.deserializeB58(priv58, params), key1);
             assertEquals(DeterministicKey.deserializeB58(null, pub58, params).getPubKeyPoint(), key1.getPubKeyPoint());
-            assertEquals(DeterministicKey.deserializeB58(pub58, params).getPubKeyPoint(), key1.getPubKeyPoint());
-            assertEquals(DeterministicKey.deserialize(params, priv, null), key1);
-            assertEquals(DeterministicKey.deserialize(params, priv), key1);
-            assertEquals(DeterministicKey.deserialize(params, pub, null).getPubKeyPoint(), key1.getPubKeyPoint());
-            assertEquals(DeterministicKey.deserialize(params, pub).getPubKeyPoint(), key1.getPubKeyPoint());
+            assertEquals(DeterministicKey.deserialize(null, priv), key1);
+            assertEquals(DeterministicKey.deserialize(null, pub).getPubKeyPoint(), key1.getPubKeyPoint());
         }
         {
             final String pub58 = key2.serializePubB58(params);
@@ -237,53 +233,6 @@ public class ChildKeyDerivationTest {
             assertEquals(DeterministicKey.deserialize(params, priv, key1), key2);
             assertEquals(DeterministicKey.deserialize(params, pub, key1).getPubKeyPoint(), key2.getPubKeyPoint());
         }
-    }
-
-    @Test
-    public void parentlessDeserialization() {
-        NetworkParameters params = UnitTestParams.get();
-        DeterministicKey key1 = HDKeyDerivation.createMasterPrivateKey("satoshi lives!".getBytes());
-        DeterministicKey key2 = HDKeyDerivation.deriveChildKey(key1, ChildNumber.ZERO_HARDENED);
-        DeterministicKey key3 = HDKeyDerivation.deriveChildKey(key2, ChildNumber.ZERO_HARDENED);
-        DeterministicKey key4 = HDKeyDerivation.deriveChildKey(key3, ChildNumber.ZERO_HARDENED);
-        assertEquals(key4.getPath().size(), 3);
-        assertEquals(DeterministicKey.deserialize(params, key4.serializePrivate(params), key3).getPath().size(), 3);
-        assertEquals(DeterministicKey.deserialize(params, key4.serializePrivate(params), null).getPath().size(), 1);
-        assertEquals(DeterministicKey.deserialize(params, key4.serializePrivate(params)).getPath().size(), 1);
-    }
-
-    /** Reserializing a deserialized key should yield the original input */
-    @Test
-    public void reserialization() {
-        // This is the public encoding of the key with path m/0H/1/2H from BIP32 published test vector 1:
-        // https://en.bitcoin.it/wiki/BIP_0032_TestVectors
-        String encoded =
-            "xpub6D4BDPcP2GT577Vvch3R8wDkScZWzQzMMUm3PWbmWvVJrZwQY4VUNgqFJPMM3No2dFDFGTsxxpG5uJh7n7epu4trkrX7x7DogT5Uv6fcLW5";
-        DeterministicKey key = DeterministicKey.deserializeB58(encoded, MainNetParams.get());
-        assertEquals("Reserialized parentless private HD key is wrong", key.serializePubB58(MainNetParams.get()), encoded);
-        assertEquals("Depth of deserialized parentless public HD key is wrong", key.getDepth(), 3);
-        assertEquals("Path size of deserialized parentless public HD key is wrong", key.getPath().size(), 1);
-        assertEquals("Parent fingerprint of deserialized parentless public HD key is wrong",
-                          key.getParentFingerprint(), 0xbef5a2f9);
-
-        // This encoding is the same key but including its private data:
-        encoded =
-            "xprv9z4pot5VBttmtdRTWfWQmoH1taj2axGVzFqSb8C9xaxKymcFzXBDptWmT7FwuEzG3ryjH4ktypQSAewRiNMjANTtpgP4mLTj34bhnZX7UiM";
-        key = DeterministicKey.deserializeB58(encoded, MainNetParams.get());
-        assertEquals("Reserialized parentless private HD key is wrong", key.serializePrivB58(MainNetParams.get()), encoded);
-        assertEquals("Depth of deserialized parentless private HD key is wrong", key.getDepth(), 3);
-        assertEquals("Path size of deserialized parentless private HD key is wrong", key.getPath().size(), 1);
-        assertEquals("Parent fingerprint of deserialized parentless private HD key is wrong",
-                          key.getParentFingerprint(), 0xbef5a2f9);
-
-        // These encodings are of the the root key of that hierarchy
-        assertEquals("Parent fingerprint of root node public HD key should be zero",
-                          DeterministicKey.deserializeB58("xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB", MainNetParams.get()).getParentFingerprint(),
-                          0);
-        assertEquals("Parent fingerprint of root node private HD key should be zero",
-                          DeterministicKey.deserializeB58("xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U", MainNetParams.get()).getParentFingerprint(),
-                          0);
-
     }
 
     private static String hexEncodePub(DeterministicKey pubKey) {

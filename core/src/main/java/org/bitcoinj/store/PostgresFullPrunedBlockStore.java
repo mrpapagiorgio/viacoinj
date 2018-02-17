@@ -1,7 +1,6 @@
 /*
  * Copyright 2014 BitPOS Pty Ltd.
  * Copyright 2014 Andreas Schildbach
- * Copyright 2014 Kalpesh Parmar
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +20,7 @@ package org.bitcoinj.store;
 import org.bitcoinj.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nullable;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,46 +31,42 @@ import java.util.List;
  */
 public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     private static final Logger log = LoggerFactory.getLogger(PostgresFullPrunedBlockStore.class);
-
+    
     private static final String POSTGRES_DUPLICATE_KEY_ERROR_CODE = "23505";
     private static final String DATABASE_DRIVER_CLASS = "org.postgresql.Driver";
     private static final String DATABASE_CONNECTION_URL_PREFIX = "jdbc:postgresql://";
 
-    // create table SQL
+    private String schemaName;
+
+    private static final String driver = "org.postgresql.Driver";
     private static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings (\n" +
             "    name character varying(32) NOT NULL,\n" +
-            "    value bytea,\n" +
-            "    CONSTRAINT setting_pk PRIMARY KEY (name)\n" +
-            ")\n";
+            "    value bytea\n" +
+            ");";
 
-    private static final String CREATE_HEADERS_TABLE = "CREATE TABLE headers (\n" +
-            "    hash bytea NOT NULL,\n" +
-            "    chainwork bytea NOT NULL,\n" +
-            "    height integer NOT NULL,\n" +
-            "    header bytea NOT NULL,\n" +
-            "    wasundoable boolean NOT NULL,\n" +
-            "    CONSTRAINT headers_pk PRIMARY KEY (hash)\n" +
-            ")\n";
+    private static final String CREATE_HEADERS_TABLE = "CREATE TABLE headers (" +
+            "    hash bytea NOT NULL," +
+            "    chainwork bytea NOT NULL," +
+            "    height integer NOT NULL," +
+            "    header bytea NOT NULL," +
+            "    wasundoable boolean NOT NULL" +
+            ");";
 
-    private static final String CREATE_UNDOABLE_TABLE = "CREATE TABLE undoableblocks (\n" +
-            "    hash bytea NOT NULL,\n" +
-            "    height integer NOT NULL,\n" +
-            "    txoutchanges bytea,\n" +
-            "    transactions bytea,\n" +
-            "    CONSTRAINT undoableblocks_pk PRIMARY KEY (hash)\n" +
-            ")\n";
-
-    private static final String CREATE_OPEN_OUTPUT_TABLE = "CREATE TABLE openoutputs (\n" +
-            "    hash bytea NOT NULL,\n" +
-            "    index integer NOT NULL,\n" +
-            "    height integer NOT NULL,\n" +
-            "    value bigint NOT NULL,\n" +
-            "    scriptbytes bytea NOT NULL,\n" +
-            "    toaddress character varying(35),\n" +
-            "    addresstargetable smallint,\n" +
-            "    coinbase boolean,\n" +
-            "    CONSTRAINT openoutputs_pk PRIMARY KEY (hash,index)\n" +
-            ")\n";
+    private static final String CREATE_UNDOABLE_TABLE = "CREATE TABLE undoableblocks (" +
+            "    hash bytea NOT NULL," +
+            "    height integer NOT NULL," +
+            "    txoutchanges bytea," +
+            "    transactions bytea" +
+            ");";
+    private static final String CREATE_OPEN_OUTPUT_TABLE = "CREATE TABLE openoutputs (" +
+            "    hash bytea NOT NULL," +
+            "    index integer NOT NULL," +
+            "    height integer NOT NULL," +
+            "    value bytea NOT NULL," +
+            "    scriptbytes bytea NOT NULL," +
+            "    toaddress character varying(35)," +
+            "    addresstargetable integer" +
+            ");";
 
     // Some indexes to speed up inserts
     private static final String CREATE_OUTPUTS_ADDRESS_MULTI_INDEX      = "CREATE INDEX openoutputs_hash_index_num_height_toaddress_idx ON openoutputs USING btree (hash, index, height, toaddress)";
@@ -88,6 +76,7 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     private static final String CREATE_UNDOABLE_TABLE_INDEX             = "CREATE INDEX undoableblocks_height_idx ON undoableBlocks USING btree (height)";
 
     private static final String SELECT_UNDOABLEBLOCKS_EXISTS_SQL        = "select 1 from undoableblocks where hash = ?";
+
 
     /**
      * Creates a new PostgresFullPrunedBlockStore.
@@ -163,99 +152,5 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     @Override
     protected String getDatabaseDriverClass() {
         return DATABASE_DRIVER_CLASS;
-    }
-
-    @Override
-    public void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock) throws BlockStoreException {
-        maybeConnect();
-        // We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes
-        byte[] hashBytes = new byte[28];
-        System.arraycopy(storedBlock.getHeader().getHash().getBytes(), 4, hashBytes, 0, 28);
-        int height = storedBlock.getHeight();
-        byte[] transactions = null;
-        byte[] txOutChanges = null;
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            if (undoableBlock.getTxOutChanges() != null) {
-                undoableBlock.getTxOutChanges().serializeToStream(bos);
-                txOutChanges = bos.toByteArray();
-            } else {
-                int numTxn = undoableBlock.getTransactions().size();
-                bos.write(0xFF & numTxn);
-                bos.write(0xFF & (numTxn >> 8));
-                bos.write(0xFF & (numTxn >> 16));
-                bos.write(0xFF & (numTxn >> 24));
-                for (Transaction tx : undoableBlock.getTransactions())
-                    tx.bitcoinSerialize(bos);
-                transactions = bos.toByteArray();
-            }
-            bos.close();
-        } catch (IOException e) {
-            throw new BlockStoreException(e);
-        }
-
-
-        try {
-            if (log.isDebugEnabled())
-                log.debug("Looking for undoable block with hash: " + Utils.HEX.encode(hashBytes));
-
-            PreparedStatement findS = conn.get().prepareStatement(SELECT_UNDOABLEBLOCKS_EXISTS_SQL);
-            findS.setBytes(1, hashBytes);
-
-            ResultSet rs = findS.executeQuery();
-            if (rs.next())
-            {
-                // We already have this output, update it.
-                findS.close();
-
-                // Postgres insert-or-updates are very complex (and finnicky).  This level of transaction isolation
-                // seems to work for bitcoinj
-                PreparedStatement s =
-                        conn.get().prepareStatement(getUpdateUndoableBlocksSQL());
-                s.setBytes(3, hashBytes);
-
-                if (log.isDebugEnabled())
-                    log.debug("Updating undoable block with hash: " + Utils.HEX.encode(hashBytes));
-
-                if (transactions == null) {
-                    s.setBytes(1, txOutChanges);
-                    s.setNull(2, Types.BINARY);
-                } else {
-                    s.setNull(1, Types.BINARY);
-                    s.setBytes(2, transactions);
-                }
-                s.executeUpdate();
-                s.close();
-
-                return;
-            }
-
-            PreparedStatement s =
-                    conn.get().prepareStatement(getInsertUndoableBlocksSQL());
-            s.setBytes(1, hashBytes);
-            s.setInt(2, height);
-
-            if (log.isDebugEnabled())
-                log.debug("Inserting undoable block with hash: " + Utils.HEX.encode(hashBytes)  + " at height " + height);
-
-            if (transactions == null) {
-                s.setBytes(3, txOutChanges);
-                s.setNull(4, Types.BINARY);
-            } else {
-                s.setNull(3, Types.BINARY);
-                s.setBytes(4, transactions);
-            }
-            s.executeUpdate();
-            s.close();
-            try {
-                putUpdateStoredBlock(storedBlock, true);
-            } catch (SQLException e) {
-                throw new BlockStoreException(e);
-            }
-        } catch (SQLException e) {
-            if (!e.getSQLState().equals(POSTGRES_DUPLICATE_KEY_ERROR_CODE))
-                throw new BlockStoreException(e);
-        }
-
     }
 }

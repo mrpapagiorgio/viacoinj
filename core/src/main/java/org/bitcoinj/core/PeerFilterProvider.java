@@ -16,6 +16,7 @@
 
 package org.bitcoinj.core;
 
+import java.util.concurrent.locks.Lock;
 
 /**
  * An interface which provides the information required to properly filter data downloaded from Peers.
@@ -54,6 +55,6 @@ public interface PeerFilterProvider {
 
     /** Whether this filter provider depends on the server updating the filter on all matches */
     boolean isRequiringUpdateAllBloomFilter();
-
+    
     void endBloomFilterCalculation();
 }

@@ -17,10 +17,8 @@
 
 package org.bitcoinj.params;
 
-import java.math.BigInteger;
-import java.util.Date;
-
 import org.bitcoinj.core.Block;
+import org.bitcoinj.core.CoinDefinition;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Utils;
@@ -29,6 +27,9 @@ import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 
 import static com.google.common.base.Preconditions.checkState;
+
+import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * Parameters for the testnet, a separate public instance of Bitcoin that has relaxed rules suitable for development
@@ -44,33 +45,22 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
         port = 18333;
-        addressHeader = 111;
-        p2shHeader = 196;
+        addressHeader = CoinDefinition.testnetAddressHeader;
+        p2shHeader = CoinDefinition.testnetp2shHeader;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
-        dumpedPrivateKeyHeader = 239;
-        genesisBlock.setTime(1296688602L);
-        genesisBlock.setDifficultyTarget(0x1d00ffffL);
-        genesisBlock.setNonce(414098458);
+        dumpedPrivateKeyHeader = 128 + CoinDefinition.testnetAddressHeader;
+        genesisBlock.setTime(CoinDefinition.testnetGenesisBlockTime);
+        genesisBlock.setDifficultyTarget(CoinDefinition.testnetGenesisBlockDifficultyTarget);
+        genesisBlock.setNonce(CoinDefinition.testnetGenesisBlockNonce);
         spendableCoinbaseDepth = 100;
-        subsidyDecreaseBlockCount = 210000;
+        subsidyDecreaseBlockCount = CoinDefinition.subsidyDecreaseBlockCount;
         String genesisHash = genesisBlock.getHashAsString();
-        checkState(genesisHash.equals("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
-        alertSigningKey = Utils.HEX.decode("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
+        if(CoinDefinition.supportsTestNet)
+            checkState(genesisHash.equals(CoinDefinition.testnetGenesisHash));
+        alertSigningKey = Utils.HEX.decode(CoinDefinition.TESTNET_SATOSHI_KEY);
 
-        dnsSeeds = new String[] {
-                "testnet-seed.bitcoin.jonasschnelli.ch", // Jonas Schnelli
-                "testnet-seed.bluematt.me",              // Matt Corallo
-                "testnet-seed.bitcoin.petertodd.org",    // Peter Todd
-                "testnet-seed.bitcoin.schildbach.de",    // Andreas Schildbach
-                "bitcoin-testnet.bloqseeds.net",         // Bloq
-        };
-        addrSeeds = null;
-        bip32HeaderPub = 0x043587CF;
-        bip32HeaderPriv = 0x04358394;
+        dnsSeeds = CoinDefinition.dnsSeeds;
 
-        majorityEnforceBlockUpgrade = TestNet2Params.TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE;
-        majorityRejectBlockOutdated = TestNet2Params.TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED;
-        majorityWindow = TestNet2Params.TESTNET_MAJORITY_WINDOW;
     }
 
     private static TestNet3Params instance;

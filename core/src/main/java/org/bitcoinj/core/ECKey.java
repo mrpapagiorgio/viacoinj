@@ -66,8 +66,7 @@ import static com.google.common.base.Preconditions.*;
 
 /**
  * <p>Represents an elliptic curve public and (optionally) private key, usable for digital signatures but not encryption.
- * Creating a new ECKey with the empty constructor will generate a new random keypair. Other static methods can be used
- * when you already have the public or private parts. If you create a key with only the public part, you can check
+ * Creating a new ECKey with the empty constructor will gsreate a key with only the public part, you can check
  * signatures but not create them.</p>
  *
  * <p>ECKey also provides access to Bitcoin Core compatible text message signing, as accessible via the UI or JSON-RPC.

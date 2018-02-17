@@ -133,7 +133,7 @@ public class BuildCheckpoints {
 
         // Sorted map of block height to StoredBlock object.
         final TreeMap<Integer, StoredBlock> checkpoints = new TreeMap<Integer, StoredBlock>();
-
+        peerGroup.addAddress(InetAddress.getByName("119.81.51.10"));
         long now = new Date().getTime() / 1000;
         peerGroup.setFastCatchupTimeSecs(now);
 
@@ -144,9 +144,9 @@ public class BuildCheckpoints {
             @Override
             public void notifyNewBestBlock(StoredBlock block) throws VerificationException {
                 int height = block.getHeight();
-                if (height % params.getInterval() == 0 && block.getHeader().getTimeSeconds() <= timeAgo) {
-                    System.out.println(String.format("Checkpointing block %s at height %d, time %s",
-                            block.getHeader().getHash(), block.getHeight(), Utils.dateTimeFormat(block.getHeader().getTime())));
+                if (height == 422897) {
+                    System.out.println(String.format("Checkpointing block %s at height %d",
+                            block.getHeader().getHash(), block.getHeight()));
                     checkpoints.put(height, block);
                 }
             }
@@ -211,21 +211,14 @@ public class BuildCheckpoints {
     }
 
     private static void sanityCheck(File file, int expectedSize) throws IOException {
-        FileInputStream fis = new FileInputStream(file);
-        CheckpointManager manager;
-        try {
-            manager = new CheckpointManager(params, fis);
-        } finally {
-            fis.close();
-        }
-
+        CheckpointManager manager = new CheckpointManager(params, new FileInputStream(file));
         checkState(manager.numCheckpoints() == expectedSize);
 
         if (params.getId().equals(NetworkParameters.ID_MAINNET)) {
-            StoredBlock test = manager.getCheckpointBefore(1390500000); // Thu Jan 23 19:00:00 CET 2014
-            checkState(test.getHeight() == 280224);
+            StoredBlock test = manager.getCheckpointBefore(1416368236); // Thu Jan 23 19:00:00 CET 2014
+            checkState(test.getHeight() == 422872);
             checkState(test.getHeader().getHashAsString()
-                    .equals("00000000000000000b5d59a15f831e1c45cb688a4db6b0a60054d49a9997fa34"));
+                    .equals("b7b249ea58d8e5b85b7937e133e9cbb5d0c894570aa8961d7ce3fb802cac3334"));
         } else if (params.getId().equals(NetworkParameters.ID_TESTNET)) {
             StoredBlock test = manager.getCheckpointBefore(1390500000); // Thu Jan 23 19:00:00 CET 2014
             checkState(test.getHeight() == 167328);

@@ -30,6 +30,8 @@ import java.util.*;
 
 import static org.bitcoinj.core.Coin.*;
 import static org.bitcoinj.core.Sha256Hash.*;
+import static org.bitcoinj.core.Coin.FIFTY_COINS;
+import static org.bitcoinj.core.Utils.scryptDigest;
 
 /**
  * <p>A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.
@@ -102,7 +104,8 @@ public class Block extends Message {
     @Nullable List<Transaction> transactions;
 
     /** Stores the hash of the block. If null, getHash() will recalculate it. */
-    private Sha256Hash hash;
+    private transient Sha256Hash hash;
+	private transient Sha256Hash scryptHash;
 
     protected boolean headerBytesValid;
     protected boolean transactionBytesValid;
@@ -411,14 +414,28 @@ public class Block extends Message {
             throw new RuntimeException(e); // Cannot happen.
         }
     }
+	
+	private Sha256Hash calculateScryptHash() {			
+        try {			
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);			
+            writeHeader(bos);			
+            return new Sha256Hash(Utils.reverseBytes(scryptDigest(bos.toByteArray())));			
+        } catch (IOException e) {			
+            throw new RuntimeException(e); // Cannot happen.			
+        }			
+    }
 
     /**
      * Returns the hash of the block (which for a valid, solved block should be below the target) in the form seen on
-     * the block explorer. If you call this on block 1 in the mainnet chain
+     * the block explorer. If you call this on block 1 in the production chain
      * you will get "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048".
      */
     public String getHashAsString() {
         return getHash().toString();
+    }
+	
+	public String getScryptHashAsString() {			
+        return getScryptHash().toString();			
     }
 
     /**
@@ -431,6 +448,12 @@ public class Block extends Message {
             hash = calculateHash();
         return hash;
     }
+	
+    public Sha256Hash getScryptHash() {			
+        if (scryptHash == null)			
+            scryptHash = calculateScryptHash();			
+        return scryptHash;			
+    }  
 
     /**
      * The number that is one greater than the largest representable SHA-256
@@ -531,6 +554,7 @@ public class Block extends Message {
             throw new VerificationException("Difficulty target is bad: " + target.toString());
         return target;
     }
+	
 
     /** Returns true if the hash of the block is OK (lower than difficulty target). */
     protected boolean checkProofOfWork(boolean throwException) throws VerificationException {
@@ -543,12 +567,24 @@ public class Block extends Message {
         // To prevent this attack from being possible, elsewhere we check that the difficultyTarget
         // field is of the right value. This requires us to have the preceeding blocks.
         BigInteger target = getDifficultyTargetAsInteger();
+        BigInteger h = null;
+        switch (CoinDefinition.coinPOWHash)
+        {
+            case scrypt:
+                    h = getScryptHash().toBigInteger();
+                    break;
+            case SHA256:
+                    h = getHash().toBigInteger();
+                    break;
+            default:  //use the normal getHash() method.
+                h = getHash().toBigInteger();
+                break;
+        }
 
-        BigInteger h = getHash().toBigInteger();
         if (h.compareTo(target) > 0) {
             // Proof of work check failed!
             if (throwException)
-                throw new VerificationException("Hash is higher than target: " + getHashAsString() + " vs "
+                throw new VerificationException("Hash is higher than target: " + getScryptHashAsString() + " vs "
                         + target.toString(16));
             else
                 return false;
@@ -790,6 +826,7 @@ public class Block extends Message {
         unCacheHeader();
         this.prevBlockHash = prevBlockHash;
         this.hash = null;
+		this.scryptHash = null;
     }
 
     /**
@@ -811,6 +848,7 @@ public class Block extends Message {
         unCacheHeader();
         this.time = time;
         this.hash = null;
+		this.scryptHash = null;
     }
 
     /**
@@ -831,6 +869,7 @@ public class Block extends Message {
         unCacheHeader();
         this.difficultyTarget = compactForm;
         this.hash = null;
+		this.scryptHash = null;
     }
 
     /**
@@ -846,6 +885,7 @@ public class Block extends Message {
         unCacheHeader();
         this.nonce = nonce;
         this.hash = null;
+		this.scryptHash = null;
     }
 
     /** Returns an immutable list of transactions held in this block, or null if this object represents just a header. */
@@ -881,8 +921,7 @@ public class Block extends Message {
         //
         // Here we will do things a bit differently so a new address isn't needed every time. We'll put a simple
         // counter in the scriptSig so every transaction has a different hash.
-        coinbase.addInput(new TransactionInput(params, coinbase,
-                inputBuilder.build().getProgram()));
+        coinbase.addInput(new TransactionInput(params, coinbase, new byte[]{(byte) txCounter, (byte) (txCounter++ >> 8)}));
         coinbase.addOutput(new TransactionOutput(params, coinbase, value,
                 ScriptBuilder.createOutputScript(ECKey.fromPublicOnly(pubKeyTo)).getProgram()));
         transactions.add(coinbase);

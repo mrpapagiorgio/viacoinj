@@ -21,11 +21,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.bitcoinj</groupId>
-        <artifactId>bitcoinj-parent</artifactId>
-        <version>0.15-SNAPSHOT</version>
+        <artifactId>viacoinj-parent</artifactId>
+        <version>0.12.2</version>
     </parent>
 
     <artifactId>wallettemplate</artifactId>
+    <version>1.0</version>
 
     <name>bitcoinj Wallet-Template</name>
 
@@ -73,13 +74,13 @@
     <dependencies>
         <dependency>
             <groupId>org.bitcoinj</groupId>
-            <artifactId>bitcoinj-core</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>viacoinj-core</artifactId>
+            <version>0.12.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>22.0-android</version>
+            <version>16.0.1</version>
         </dependency>
         <!-- Native Mac skin (there's also AeroFX, MetroFX, etc)
         <dependency>

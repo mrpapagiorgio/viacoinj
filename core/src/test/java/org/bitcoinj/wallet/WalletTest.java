@@ -23,6 +23,7 @@ import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.CoinDefinition;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.PeerAddress;
@@ -127,11 +128,7 @@ public class WalletTest extends TestWithWallet {
                 wallet.addTransactionSigner(new KeyChainTransactionSigner(keyChain));
         }
 
-        MarriedKeyChain chain = MarriedKeyChain.builder()
-                .random(new SecureRandom())
-                .followingKeys(followingKeys)
-                .threshold(threshold).build();
-        wallet.addAndActivateHDChain(chain);
+        wallet.addFollowingAccountKeys(followingKeys, threshold);
     }
 
     @Test
@@ -1792,6 +1789,7 @@ public class WalletTest extends TestWithWallet {
         assertFalse("Wallet not saved after receivePending", hash2.equals(hash3));  // File has changed again.
     }
 
+
     @Test
     public void autosaveDelayed() throws Exception {
         // Test that the wallet will save itself automatically when it changes, but not immediately and near-by
@@ -1989,7 +1987,7 @@ public class WalletTest extends TestWithWallet {
         assertEquals("Wallet is not an encrypted wallet", EncryptionType.ENCRYPTED_SCRYPT_AES, encryptedWallet.getEncryptionType());
         assertFalse(encryptedWallet.checkAESKey(wrongAesKey));
 
-        // Check that the wrong password does not decrypt the wallet.
+        // Chek that the wrong password does not decrypt the wallet.
         try {
             encryptedWallet.decrypt(wrongAesKey);
             fail("Incorrectly decoded wallet with wrong password");
@@ -2690,40 +2688,37 @@ public class WalletTest extends TestWithWallet {
 
     @Test
     public void lowerThanDefaultFee() throws InsufficientMoneyException {
-        int feeFactor = 10;
-        Coin fee = Transaction.DEFAULT_TX_FEE.divide(feeFactor);
+        Coin fee = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.divide(10);
         receiveATransactionAmount(wallet, myAddress, Coin.COIN);
         SendRequest req = SendRequest.to(myAddress, Coin.CENT);
         req.feePerKb = fee;
         wallet.completeTx(req);
-        assertEquals(Coin.valueOf(22700).divide(feeFactor), req.tx.getFee());
+        assertEquals(fee, req.tx.getFee());
         wallet.commitTx(req.tx);
         SendRequest emptyReq = SendRequest.emptyWallet(myAddress);
         emptyReq.feePerKb = fee;
-        emptyReq.ensureMinRequiredFee = true;
         emptyReq.emptyWallet = true;
         emptyReq.coinSelector = AllowUnconfirmedCoinSelector.get();
         wallet.completeTx(emptyReq);
-        assertEquals(Transaction.REFERENCE_DEFAULT_MIN_TX_FEE, emptyReq.tx.getFee());
+        assertEquals(fee, emptyReq.tx.getFee());
         wallet.commitTx(emptyReq.tx);
     }
 
     @Test
     public void higherThanDefaultFee() throws InsufficientMoneyException {
-        int feeFactor = 10;
-        Coin fee = Transaction.DEFAULT_TX_FEE.multiply(feeFactor);
+        Coin fee = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.multiply(10);
         receiveATransactionAmount(wallet, myAddress, Coin.COIN);
         SendRequest req = SendRequest.to(myAddress, Coin.CENT);
         req.feePerKb = fee;
         wallet.completeTx(req);
-        assertEquals(Coin.valueOf(22700).multiply(feeFactor), req.tx.getFee());
+        assertEquals(fee, req.tx.getFee());
         wallet.commitTx(req.tx);
         SendRequest emptyReq = SendRequest.emptyWallet(myAddress);
         emptyReq.feePerKb = fee;
         emptyReq.emptyWallet = true;
         emptyReq.coinSelector = AllowUnconfirmedCoinSelector.get();
         wallet.completeTx(emptyReq);
-        assertEquals(Coin.valueOf(342000), emptyReq.tx.getFee());
+        assertEquals(fee, emptyReq.tx.getFee());
         wallet.commitTx(emptyReq.tx);
     }
 
@@ -3347,11 +3342,7 @@ public class WalletTest extends TestWithWallet {
             }
         };
         wallet.addTransactionSigner(signer);
-        MarriedKeyChain chain = MarriedKeyChain.builder()
-                .random(new SecureRandom())
-                .followingKeys(partnerKey)
-                .build();
-        wallet.addAndActivateHDChain(chain);
+        wallet.addFollowingAccountKeys(ImmutableList.of(partnerKey));
 
         Address myAddress = wallet.currentAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS);
         sendMoneyToWallet(wallet, AbstractBlockChain.NewBlockType.BEST_CHAIN, COIN, myAddress);

@@ -17,11 +17,12 @@
 
 package org.bitcoinj.params;
 
-import org.bitcoinj.core.*;
-import org.bitcoinj.net.discovery.*;
-
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.net.discovery.HttpDiscovery;
+import org.bitcoinj.core.CoinDefinition;
+import org.bitcoinj.core.ECKey;
 import java.net.*;
-
 import static com.google.common.base.Preconditions.*;
 
 /**
@@ -36,51 +37,40 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         super();
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
-        maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
-        dumpedPrivateKeyHeader = 128;
-        addressHeader = 0;
-        p2shHeader = 5;
-        acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
-        port = 8333;
-        packetMagic = 0xf9beb4d9L;
-        bip32HeaderPub = 0x0488B21E; //The 4 byte header that serializes in base58 to "xpub".
-        bip32HeaderPriv = 0x0488ADE4; //The 4 byte header that serializes in base58 to "xprv"
-
-        majorityEnforceBlockUpgrade = MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE;
-        majorityRejectBlockOutdated = MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED;
-        majorityWindow = MAINNET_MAJORITY_WINDOW;
-
-        genesisBlock.setDifficultyTarget(0x1d00ffffL);
-        genesisBlock.setTime(1231006505L);
-        genesisBlock.setNonce(2083236893);
+        maxTarget = Utils.decodeCompactBits(0x1e01ffffL);
+        dumpedPrivateKeyHeader = 128 + CoinDefinition.AddressHeader;
+        addressHeader = CoinDefinition.AddressHeader;
+        p2shHeader = CoinDefinition.p2shHeader;
+        acceptableAddressCodes = new int[] { addressHeader, p2shHeader};
+        port = 5223;
+        packetMagic = CoinDefinition.PacketMagic;
+        genesisBlock.setDifficultyTarget(0x1e01ffffL);
+        genesisBlock.setTime(CoinDefinition.genesisBlockTime);
+        genesisBlock.setNonce(CoinDefinition.genesisBlockNonce);
         id = ID_MAINNET;
-        subsidyDecreaseBlockCount = 210000;
-        spendableCoinbaseDepth = 100;
+        subsidyDecreaseBlockCount = 2102400;
+        spendableCoinbaseDepth = 3600;
         String genesisHash = genesisBlock.getHashAsString();
-        checkState(genesisHash.equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
+        checkState(genesisHash.equals("4e9b54001f9976049830128ec0331515eaabe35a70970d79971da1539a400ba1"),
                 genesisHash);
 
         // This contains (at a minimum) the blocks which are not BIP30 compliant. BIP30 changed how duplicate
         // transactions are handled. Duplicated transactions could occur in the case where a coinbase had the same
         // extraNonce and the same outputs but appeared at different heights, and greatly complicated re-org handling.
         // Having these here simplifies block connection logic considerably.
-        checkpoints.put(91722, Sha256Hash.wrap("00000000000271a2dc26e7667f8419f2e15416dc6955e5a6c6cdf3f2574dd08e"));
-        checkpoints.put(91812, Sha256Hash.wrap("00000000000af0aed4792b1acee3d966af36cf5def14935db8de83d6f9306f2f"));
-        checkpoints.put(91842, Sha256Hash.wrap("00000000000a4d0a398161ffc163c503763b1f4360639393e0e4c8e300e0caec"));
-        checkpoints.put(91880, Sha256Hash.wrap("00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721"));
-        checkpoints.put(200000, Sha256Hash.wrap("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"));
+        checkpoints.put(3901, Sha256Hash.wrap("39c94020b653871bbcb29c9489bb12f84c5e89adef75f2e5c5f59e88869129d9"));
+        checkpoints.put(40821, Sha256Hash.wrap("e0471675f9c98aa5ed321ed951d140d4603d96254a4ca9fbca07b8da5ee11954"));
+        checkpoints.put(41433, Sha256Hash.wrap("627e18cc08a276282781705bac09508992dc8b665391edd7bde8a601f011954c"));
+        checkpoints.put(44606, Sha256Hash.wrap("5ceeec38564a36ee3e1e5404970f5715efe0420e92c8e92bedfdfef782c49320"));		
 
         dnsSeeds = new String[] {
-                "seed.bitcoin.sipa.be",         // Pieter Wuille
-                "dnsseed.bluematt.me",          // Matt Corallo
-                "dnsseed.bitcoin.dashjr.org",   // Luke Dashjr
-                "seed.bitcoinstats.com",        // Chris Decker
-                "seed.bitnodes.io",             // Addy Yeow
-                "bitseed.xf2.org",              // Jeff Garzik
-                "seed.bitcoin.jonasschnelli.ch",// Jonas Schnelli
-                "bitcoin.bloqseeds.net",        // Bloq
-                "seed.ob1.io",                  // OpenBazaar
+			"via.cryptoservices.net",
+
         };
+        
+        /**
+         * TODO:  Update peers or get rid of this.
+         */
         httpSeeds = new HttpDiscovery.Details[] {
                 // Andreas Schildbach
                 new HttpDiscovery.Details(

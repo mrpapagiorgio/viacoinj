@@ -768,6 +768,41 @@ public class Wallet extends BaseTaggableObject
             keyChainGroupLock.unlock();
         }
     }
+    
+    /**
+     * <p>Alias for <code>addFollowingAccountKeys(followingAccountKeys, (followingAccountKeys.size() + 1) / 2 + 1)</code></p>
+     * <p>Creates married wallet requiring majority of keys to spend (2-of-3, 3-of-5 and so on)</p>
+     * <p>IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are
+     * non-standard and such spends won't be processed by peers with default settings, essentially making such
+     * transactions almost nonspendable</p>
+     */
+    public void addFollowingAccountKeys(List<DeterministicKey> followingAccountKeys) {
+        keyChainGroupLock.lock();
+        try {
+            keyChainGroup.addFollowingAccountKeys(followingAccountKeys);
+        } finally {
+            keyChainGroupLock.unlock();
+        }
+    }
+
+    /**
+     * Makes given account keys follow the account key of the active keychain. After that you will be able
+     * to get P2SH addresses to receive coins to. Given threshold value specifies how many signatures required to
+     * spend transactions for this married wallet. This value should not exceed total number of keys involved
+     * (one followed key plus number of following keys).</p>
+     * <p>IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are
+     * non-standard and such spends won't be processed by peers with default settings, essentially making such
+     * transactions almost nonspendable</p>
+     * This method should be called only once before key rotation, otherwise it will throw an IllegalStateException.
+     */
+    public void addFollowingAccountKeys(List<DeterministicKey> followingAccountKeys, int threshold) {
+        keyChainGroupLock.lock();
+        try {
+            keyChainGroup.addFollowingAccountKeys(followingAccountKeys, threshold);
+        } finally {
+            keyChainGroupLock.unlock();
+        }
+    }
 
     /**
      * Add a pre-configured keychain to the wallet.  Useful for setting up a complex keychain,
@@ -5272,4 +5307,6 @@ public class Wallet extends BaseTaggableObject
         }
     }
     //endregion
+
+   
 }

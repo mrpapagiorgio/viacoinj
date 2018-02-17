@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 Matt Corallo
  * Copyright 2015 Andreas Schildbach
  *
@@ -24,6 +24,9 @@ import java.io.OutputStream;
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class Pong extends Message {
+    /** The smallest protocol version that supports the pong response (BIP 31). Anything beyond version 60000. */
+    public static final int MIN_PROTOCOL_VERSION = CoinDefinition.MIN_PROTOCOL_VERSION;//60001;
+
     private long nonce;
 
     public Pong(NetworkParameters params, byte[] payloadBytes) throws ProtocolException {

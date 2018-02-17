@@ -55,7 +55,7 @@ public class VarInt {
             originallyEncodedSize = 9; // 1 marker + 8 data bytes (64 bits)
         }
     }
-
+    
     /**
      * Returns the original number of bytes used to encode the value if it was
      * deserialized from a byte array, or the minimum encoded size if it was not.

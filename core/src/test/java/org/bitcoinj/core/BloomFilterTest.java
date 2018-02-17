@@ -71,10 +71,10 @@ public class BloomFilterTest {
         NetworkParameters params = MainNetParams.get();
         Context.propagate(new Context(params));
 
-        DumpedPrivateKey privKey = DumpedPrivateKey.fromBase58(params, "5Kg1gnAjaLfKiwhhPpGS3QfRg2m6awQvaj98JCZBZQ5SuS2F15C");
-
+        DumpedPrivateKey privKey = new DumpedPrivateKey(params, CoinDefinition.UNITTEST_ADDRESS_PRIVATE_KEY);
+        
         Address addr = privKey.getKey().toAddress(params);
-        assertTrue(addr.toString().equals("17Wx1GQfyPTNWpQMHrTwRSMTCAonSiZx9e"));
+        assertTrue(addr.toString().equals(CoinDefinition.UNITTEST_ADDRESS));
 
         KeyChainGroup group = new KeyChainGroup(params);
         // Add a random key which happens to have been used in a recent generation

@@ -1374,11 +1374,6 @@ public final class Protos {
               isFollowing_ = input.readBool();
               break;
             }
-            case 48: {
-              bitField0_ |= 0x00000010;
-              sigsRequiredToSpend_ = input.readUInt32();
-              break;
-            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1559,38 +1554,12 @@ public final class Protos {
       return isFollowing_;
     }
 
-    public static final int SIGSREQUIREDTOSPEND_FIELD_NUMBER = 6;
-    private int sigsRequiredToSpend_;
-    /**
-     * <code>optional uint32 sigsRequiredToSpend = 6 [default = 1];</code>
-     *
-     * <pre>
-     * Number of signatures required to spend. This field is needed only for married keychains to reconstruct KeyChain
-     * and represents the N value from N-of-M CHECKMULTISIG script. For regular single keychains it will always be 1.
-     * </pre>
-     */
-    public boolean hasSigsRequiredToSpend() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional uint32 sigsRequiredToSpend = 6 [default = 1];</code>
-     *
-     * <pre>
-     * Number of signatures required to spend. This field is needed only for married keychains to reconstruct KeyChain
-     * and represents the N value from N-of-M CHECKMULTISIG script. For regular single keychains it will always be 1.
-     * </pre>
-     */
-    public int getSigsRequiredToSpend() {
-      return sigsRequiredToSpend_;
-    }
-
     private void initFields() {
       chainCode_ = com.google.protobuf.ByteString.EMPTY;
       path_ = java.util.Collections.emptyList();
       issuedSubkeys_ = 0;
       lookaheadSize_ = 0;
       isFollowing_ = false;
-      sigsRequiredToSpend_ = 1;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1623,9 +1592,6 @@ public final class Protos {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBool(5, isFollowing_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeUInt32(6, sigsRequiredToSpend_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1660,10 +1626,6 @@ public final class Protos {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(5, isFollowing_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(6, sigsRequiredToSpend_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1797,8 +1759,6 @@ public final class Protos {
         bitField0_ = (bitField0_ & ~0x00000008);
         isFollowing_ = false;
         bitField0_ = (bitField0_ & ~0x00000010);
-        sigsRequiredToSpend_ = 1;
-        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -1848,10 +1808,6 @@ public final class Protos {
           to_bitField0_ |= 0x00000008;
         }
         result.isFollowing_ = isFollowing_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.sigsRequiredToSpend_ = sigsRequiredToSpend_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1889,9 +1845,6 @@ public final class Protos {
         }
         if (other.hasIsFollowing()) {
           setIsFollowing(other.getIsFollowing());
-        }
-        if (other.hasSigsRequiredToSpend()) {
-          setSigsRequiredToSpend(other.getSigsRequiredToSpend());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2232,58 +2185,6 @@ public final class Protos {
       public Builder clearIsFollowing() {
         bitField0_ = (bitField0_ & ~0x00000010);
         isFollowing_ = false;
-        onChanged();
-        return this;
-      }
-
-      private int sigsRequiredToSpend_ = 1;
-      /**
-       * <code>optional uint32 sigsRequiredToSpend = 6 [default = 1];</code>
-       *
-       * <pre>
-       * Number of signatures required to spend. This field is needed only for married keychains to reconstruct KeyChain
-       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single keychains it will always be 1.
-       * </pre>
-       */
-      public boolean hasSigsRequiredToSpend() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional uint32 sigsRequiredToSpend = 6 [default = 1];</code>
-       *
-       * <pre>
-       * Number of signatures required to spend. This field is needed only for married keychains to reconstruct KeyChain
-       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single keychains it will always be 1.
-       * </pre>
-       */
-      public int getSigsRequiredToSpend() {
-        return sigsRequiredToSpend_;
-      }
-      /**
-       * <code>optional uint32 sigsRequiredToSpend = 6 [default = 1];</code>
-       *
-       * <pre>
-       * Number of signatures required to spend. This field is needed only for married keychains to reconstruct KeyChain
-       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single keychains it will always be 1.
-       * </pre>
-       */
-      public Builder setSigsRequiredToSpend(int value) {
-        bitField0_ |= 0x00000020;
-        sigsRequiredToSpend_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional uint32 sigsRequiredToSpend = 6 [default = 1];</code>
-       *
-       * <pre>
-       * Number of signatures required to spend. This field is needed only for married keychains to reconstruct KeyChain
-       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single keychains it will always be 1.
-       * </pre>
-       */
-      public Builder clearSigsRequiredToSpend() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        sigsRequiredToSpend_ = 1;
         onChanged();
         return this;
       }
@@ -14642,6 +14543,26 @@ public final class Protos {
      */
     org.bitcoinj.wallet.Protos.TransactionSignerOrBuilder getTransactionSignersOrBuilder(
         int index);
+
+    // optional uint32 sigsRequiredToSpend = 18 [default = 1];
+    /**
+     * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+     *
+     * <pre>
+     * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+     * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+     * </pre>
+     */
+    boolean hasSigsRequiredToSpend();
+    /**
+     * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+     *
+     * <pre>
+     * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+     * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+     * </pre>
+     */
+    int getSigsRequiredToSpend();
   }
   /**
    * Protobuf type {@code wallet.Wallet}
@@ -14806,6 +14727,11 @@ public final class Protos {
                 mutable_bitField0_ |= 0x00004000;
               }
               transactionSigners_.add(input.readMessage(org.bitcoinj.wallet.Protos.TransactionSigner.PARSER, extensionRegistry));
+              break;
+            }
+            case 144: {
+              bitField0_ |= 0x00000200;
+              sigsRequiredToSpend_ = input.readUInt32();
               break;
             }
           }
@@ -15461,6 +15387,32 @@ public final class Protos {
       return transactionSigners_.get(index);
     }
 
+    // optional uint32 sigsRequiredToSpend = 18 [default = 1];
+    public static final int SIGSREQUIREDTOSPEND_FIELD_NUMBER = 18;
+    private int sigsRequiredToSpend_;
+    /**
+     * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+     *
+     * <pre>
+     * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+     * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+     * </pre>
+     */
+    public boolean hasSigsRequiredToSpend() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+     *
+     * <pre>
+     * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+     * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+     * </pre>
+     */
+    public int getSigsRequiredToSpend() {
+      return sigsRequiredToSpend_;
+    }
+
     private void initFields() {
       networkIdentifier_ = "";
       lastSeenBlockHash_ = com.google.protobuf.ByteString.EMPTY;
@@ -15477,6 +15429,7 @@ public final class Protos {
       keyRotationTime_ = 0L;
       tags_ = java.util.Collections.emptyList();
       transactionSigners_ = java.util.Collections.emptyList();
+      sigsRequiredToSpend_ = 1;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -15582,6 +15535,9 @@ public final class Protos {
       for (int i = 0; i < transactionSigners_.size(); i++) {
         output.writeMessage(17, transactionSigners_.get(i));
       }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeUInt32(18, sigsRequiredToSpend_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -15650,6 +15606,10 @@ public final class Protos {
       for (int i = 0; i < transactionSigners_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(17, transactionSigners_.get(i));
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(18, sigsRequiredToSpend_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -15837,6 +15797,8 @@ public final class Protos {
         } else {
           transactionSignersBuilder_.clear();
         }
+        sigsRequiredToSpend_ = 1;
+        bitField0_ = (bitField0_ & ~0x00008000);
         return this;
       }
 
@@ -15959,6 +15921,10 @@ public final class Protos {
         } else {
           result.transactionSigners_ = transactionSignersBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.sigsRequiredToSpend_ = sigsRequiredToSpend_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -16161,6 +16127,9 @@ public final class Protos {
               transactionSignersBuilder_.addAllMessages(other.transactionSigners_);
             }
           }
+        }
+        if (other.hasSigsRequiredToSpend()) {
+          setSigsRequiredToSpend(other.getSigsRequiredToSpend());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -18341,6 +18310,59 @@ public final class Protos {
         return transactionSignersBuilder_;
       }
 
+      // optional uint32 sigsRequiredToSpend = 18 [default = 1];
+      private int sigsRequiredToSpend_ = 1;
+      /**
+       * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+       *
+       * <pre>
+       * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+       * </pre>
+       */
+      public boolean hasSigsRequiredToSpend() {
+        return ((bitField0_ & 0x00008000) == 0x00008000);
+      }
+      /**
+       * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+       *
+       * <pre>
+       * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+       * </pre>
+       */
+      public int getSigsRequiredToSpend() {
+        return sigsRequiredToSpend_;
+      }
+      /**
+       * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+       *
+       * <pre>
+       * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+       * </pre>
+       */
+      public Builder setSigsRequiredToSpend(int value) {
+        bitField0_ |= 0x00008000;
+        sigsRequiredToSpend_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint32 sigsRequiredToSpend = 18 [default = 1];</code>
+       *
+       * <pre>
+       * Number of signatures required to spend. This field is needed only for married wallets to reconstruct KeyChainGroup
+       * and represents the N value from N-of-M CHECKMULTISIG script. For regular single wallets it will always be 1.
+       * </pre>
+       */
+      public Builder clearSigsRequiredToSpend() {
+        bitField0_ = (bitField0_ & ~0x00008000);
+        sigsRequiredToSpend_ = 1;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:wallet.Wallet)
     }
 
@@ -19128,17 +19150,17 @@ public final class Protos {
     // @@protoc_insertion_point(class_scope:wallet.ExchangeRate)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_wallet_PeerAddress_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_wallet_PeerAddress_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_wallet_EncryptedData_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_wallet_EncryptedData_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_wallet_DeterministicKey_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -19168,7 +19190,7 @@ public final class Protos {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_wallet_TransactionConfidence_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_wallet_Transaction_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -19198,7 +19220,7 @@ public final class Protos {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_wallet_Wallet_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_wallet_ExchangeRate_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -19216,92 +19238,180 @@ public final class Protos {
       "\nip_address\030\001 \002(\014\022\014\n\004port\030\002 \002(\r\022\020\n\010servi" +
       "ces\030\003 \002(\004\"M\n\rEncryptedData\022\035\n\025initialisa" +
       "tion_vector\030\001 \002(\014\022\035\n\025encrypted_private_k" +
-      "ey\030\002 \002(\014\"\231\001\n\020DeterministicKey\022\022\n\nchain_c" +
-      "ode\030\001 \002(\014\022\014\n\004path\030\002 \003(\r\022\026\n\016issued_subkey" +
-      "s\030\003 \001(\r\022\026\n\016lookahead_size\030\004 \001(\r\022\023\n\013isFol" +
-      "lowing\030\005 \001(\010\022\036\n\023sigsRequiredToSpend\030\006 \001(" +
-      "\r:\0011\"\264\003\n\003Key\022\036\n\004type\030\001 \002(\0162\020.wallet.Key." +
-      "Type\022\024\n\014secret_bytes\030\002 \001(\014\022-\n\016encrypted_",
-      "data\030\006 \001(\0132\025.wallet.EncryptedData\022\022\n\npub" +
-      "lic_key\030\003 \001(\014\022\r\n\005label\030\004 \001(\t\022\032\n\022creation" +
-      "_timestamp\030\005 \001(\003\0223\n\021deterministic_key\030\007 " +
-      "\001(\0132\030.wallet.DeterministicKey\022\032\n\022determi" +
-      "nistic_seed\030\010 \001(\014\022;\n\034encrypted_determini" +
-      "stic_seed\030\t \001(\0132\025.wallet.EncryptedData\022\030" +
-      "\n\014account_path\030\n \003(\rB\002\020\001\"a\n\004Type\022\014\n\010ORIG" +
-      "INAL\020\001\022\030\n\024ENCRYPTED_SCRYPT_AES\020\002\022\032\n\026DETE" +
-      "RMINISTIC_MNEMONIC\020\003\022\025\n\021DETERMINISTIC_KE" +
-      "Y\020\004\"5\n\006Script\022\017\n\007program\030\001 \002(\014\022\032\n\022creati",
-      "on_timestamp\030\002 \002(\003\"\222\001\n\020TransactionInput\022" +
-      "\"\n\032transaction_out_point_hash\030\001 \002(\014\022#\n\033t" +
-      "ransaction_out_point_index\030\002 \002(\r\022\024\n\014scri" +
-      "pt_bytes\030\003 \002(\014\022\020\n\010sequence\030\004 \001(\r\022\r\n\005valu" +
-      "e\030\005 \001(\003\"\177\n\021TransactionOutput\022\r\n\005value\030\001 " +
-      "\002(\003\022\024\n\014script_bytes\030\002 \002(\014\022!\n\031spent_by_tr" +
-      "ansaction_hash\030\003 \001(\014\022\"\n\032spent_by_transac" +
-      "tion_index\030\004 \001(\005\"\267\003\n\025TransactionConfiden" +
-      "ce\0220\n\004type\030\001 \001(\0162\".wallet.TransactionCon" +
-      "fidence.Type\022\032\n\022appeared_at_height\030\002 \001(\005",
-      "\022\036\n\026overriding_transaction\030\003 \001(\014\022\r\n\005dept" +
-      "h\030\004 \001(\005\022)\n\014broadcast_by\030\006 \003(\0132\023.wallet.P" +
-      "eerAddress\022\033\n\023last_broadcasted_at\030\010 \001(\003\022" +
-      "4\n\006source\030\007 \001(\0162$.wallet.TransactionConf" +
-      "idence.Source\"`\n\004Type\022\013\n\007UNKNOWN\020\000\022\014\n\010BU" +
-      "ILDING\020\001\022\013\n\007PENDING\020\002\022\025\n\021NOT_IN_BEST_CHA" +
-      "IN\020\003\022\010\n\004DEAD\020\004\022\017\n\013IN_CONFLICT\020\005\"A\n\006Sourc" +
-      "e\022\022\n\016SOURCE_UNKNOWN\020\000\022\022\n\016SOURCE_NETWORK\020" +
-      "\001\022\017\n\013SOURCE_SELF\020\002\"\303\005\n\013Transaction\022\017\n\007ve" +
-      "rsion\030\001 \002(\005\022\014\n\004hash\030\002 \002(\014\022&\n\004pool\030\003 \001(\0162",
-      "\030.wallet.Transaction.Pool\022\021\n\tlock_time\030\004" +
-      " \001(\r\022\022\n\nupdated_at\030\005 \001(\003\0223\n\021transaction_" +
-      "input\030\006 \003(\0132\030.wallet.TransactionInput\0225\n" +
-      "\022transaction_output\030\007 \003(\0132\031.wallet.Trans" +
-      "actionOutput\022\022\n\nblock_hash\030\010 \003(\014\022 \n\030bloc" +
-      "k_relativity_offsets\030\013 \003(\005\0221\n\nconfidence" +
-      "\030\t \001(\0132\035.wallet.TransactionConfidence\0225\n" +
-      "\007purpose\030\n \001(\0162\033.wallet.Transaction.Purp" +
-      "ose:\007UNKNOWN\022+\n\rexchange_rate\030\014 \001(\0132\024.wa" +
-      "llet.ExchangeRate\022\014\n\004memo\030\r \001(\t\"Y\n\004Pool\022",
-      "\013\n\007UNSPENT\020\004\022\t\n\005SPENT\020\005\022\014\n\010INACTIVE\020\002\022\010\n" +
-      "\004DEAD\020\n\022\013\n\007PENDING\020\020\022\024\n\020PENDING_INACTIVE" +
-      "\020\022\"\243\001\n\007Purpose\022\013\n\007UNKNOWN\020\000\022\020\n\014USER_PAYM" +
-      "ENT\020\001\022\020\n\014KEY_ROTATION\020\002\022\034\n\030ASSURANCE_CON" +
-      "TRACT_CLAIM\020\003\022\035\n\031ASSURANCE_CONTRACT_PLED" +
-      "GE\020\004\022\033\n\027ASSURANCE_CONTRACT_STUB\020\005\022\r\n\tRAI" +
-      "SE_FEE\020\006\"N\n\020ScryptParameters\022\014\n\004salt\030\001 \002" +
+      "ey\030\002 \002(\014\"y\n\020DeterministicKey\022\022\n\nchain_co" +
+      "de\030\001 \002(\014\022\014\n\004path\030\002 \003(\r\022\026\n\016issued_subkeys" +
+      "\030\003 \001(\r\022\026\n\016lookahead_size\030\004 \001(\r\022\023\n\013isFoll" +
+      "owing\030\005 \001(\010\"\232\003\n\003Key\022\036\n\004type\030\001 \002(\0162\020.wall" +
+      "et.Key.Type\022\024\n\014secret_bytes\030\002 \001(\014\022-\n\016enc" +
+      "rypted_data\030\006 \001(\0132\025.wallet.EncryptedData",
+      "\022\022\n\npublic_key\030\003 \001(\014\022\r\n\005label\030\004 \001(\t\022\032\n\022c" +
+      "reation_timestamp\030\005 \001(\003\0223\n\021deterministic" +
+      "_key\030\007 \001(\0132\030.wallet.DeterministicKey\022\032\n\022" +
+      "deterministic_seed\030\010 \001(\014\022;\n\034encrypted_de" +
+      "terministic_seed\030\t \001(\0132\025.wallet.Encrypte" +
+      "dData\"a\n\004Type\022\014\n\010ORIGINAL\020\001\022\030\n\024ENCRYPTED" +
+      "_SCRYPT_AES\020\002\022\032\n\026DETERMINISTIC_MNEMONIC\020" +
+      "\003\022\025\n\021DETERMINISTIC_KEY\020\004\"5\n\006Script\022\017\n\007pr" +
+      "ogram\030\001 \002(\014\022\032\n\022creation_timestamp\030\002 \002(\003\"" +
+      "\222\001\n\020TransactionInput\022\"\n\032transaction_out_",
+      "point_hash\030\001 \002(\014\022#\n\033transaction_out_poin" +
+      "t_index\030\002 \002(\r\022\024\n\014script_bytes\030\003 \002(\014\022\020\n\010s" +
+      "equence\030\004 \001(\r\022\r\n\005value\030\005 \001(\003\"\177\n\021Transact" +
+      "ionOutput\022\r\n\005value\030\001 \002(\003\022\024\n\014script_bytes" +
+      "\030\002 \002(\014\022!\n\031spent_by_transaction_hash\030\003 \001(" +
+      "\014\022\"\n\032spent_by_transaction_index\030\004 \001(\005\"\211\003" +
+      "\n\025TransactionConfidence\0220\n\004type\030\001 \001(\0162\"." +
+      "wallet.TransactionConfidence.Type\022\032\n\022app" +
+      "eared_at_height\030\002 \001(\005\022\036\n\026overriding_tran" +
+      "saction\030\003 \001(\014\022\r\n\005depth\030\004 \001(\005\022)\n\014broadcas",
+      "t_by\030\006 \003(\0132\023.wallet.PeerAddress\0224\n\006sourc" +
+      "e\030\007 \001(\0162$.wallet.TransactionConfidence.S" +
+      "ource\"O\n\004Type\022\013\n\007UNKNOWN\020\000\022\014\n\010BUILDING\020\001" +
+      "\022\013\n\007PENDING\020\002\022\025\n\021NOT_IN_BEST_CHAIN\020\003\022\010\n\004" +
+      "DEAD\020\004\"A\n\006Source\022\022\n\016SOURCE_UNKNOWN\020\000\022\022\n\016" +
+      "SOURCE_NETWORK\020\001\022\017\n\013SOURCE_SELF\020\002\"\264\005\n\013Tr" +
+      "ansaction\022\017\n\007version\030\001 \002(\005\022\014\n\004hash\030\002 \002(\014" +
+      "\022&\n\004pool\030\003 \001(\0162\030.wallet.Transaction.Pool" +
+      "\022\021\n\tlock_time\030\004 \001(\r\022\022\n\nupdated_at\030\005 \001(\003\022" +
+      "3\n\021transaction_input\030\006 \003(\0132\030.wallet.Tran",
+      "sactionInput\0225\n\022transaction_output\030\007 \003(\013" +
+      "2\031.wallet.TransactionOutput\022\022\n\nblock_has" +
+      "h\030\010 \003(\014\022 \n\030block_relativity_offsets\030\013 \003(" +
+      "\005\0221\n\nconfidence\030\t \001(\0132\035.wallet.Transacti" +
+      "onConfidence\0225\n\007purpose\030\n \001(\0162\033.wallet.T" +
+      "ransaction.Purpose:\007UNKNOWN\022+\n\rexchange_" +
+      "rate\030\014 \001(\0132\024.wallet.ExchangeRate\022\014\n\004memo" +
+      "\030\r \001(\t\"Y\n\004Pool\022\013\n\007UNSPENT\020\004\022\t\n\005SPENT\020\005\022\014" +
+      "\n\010INACTIVE\020\002\022\010\n\004DEAD\020\n\022\013\n\007PENDING\020\020\022\024\n\020P" +
+      "ENDING_INACTIVE\020\022\"\224\001\n\007Purpose\022\013\n\007UNKNOWN",
+      "\020\000\022\020\n\014USER_PAYMENT\020\001\022\020\n\014KEY_ROTATION\020\002\022\034" +
+      "\n\030ASSURANCE_CONTRACT_CLAIM\020\003\022\035\n\031ASSURANC" +
+      "E_CONTRACT_PLEDGE\020\004\022\033\n\027ASSURANCE_CONTRAC" +
+      "T_STUB\020\005\"N\n\020ScryptParameters\022\014\n\004salt\030\001 \002" +
       "(\014\022\020\n\001n\030\002 \001(\003:\00516384\022\014\n\001r\030\003 \001(\005:\0018\022\014\n\001p\030" +
       "\004 \001(\005:\0011\"8\n\tExtension\022\n\n\002id\030\001 \002(\t\022\014\n\004dat" +
-      "a\030\002 \002(\014\022\021\n\tmandatory\030\003 \002(\010\" \n\003Tag\022\013\n\003tag",
+      "a\030\002 \002(\014\022\021\n\tmandatory\030\003 \002(\010\" \n\003Tag\022\013\n\003tag" +
       "\030\001 \002(\t\022\014\n\004data\030\002 \002(\014\"5\n\021TransactionSigne" +
-      "r\022\022\n\nclass_name\030\001 \002(\t\022\014\n\004data\030\002 \001(\014\"\351\004\n\006" +
-      "Wallet\022\032\n\022network_identifier\030\001 \002(\t\022\034\n\024la" +
+      "r\022\022\n\nclass_name\030\001 \002(\t\022\014\n\004data\030\002 \001(\014\"\211\005\n\006" +
+      "Wallet\022\032\n\022network_identifier\030\001 \002(\t\022\034\n\024la",
       "st_seen_block_hash\030\002 \001(\014\022\036\n\026last_seen_bl" +
       "ock_height\030\014 \001(\r\022!\n\031last_seen_block_time" +
       "_secs\030\016 \001(\003\022\030\n\003key\030\003 \003(\0132\013.wallet.Key\022(\n" +
       "\013transaction\030\004 \003(\0132\023.wallet.Transaction\022" +
       "&\n\016watched_script\030\017 \003(\0132\016.wallet.Script\022" +
       "C\n\017encryption_type\030\005 \001(\0162\035.wallet.Wallet" +
-      ".EncryptionType:\013UNENCRYPTED\0227\n\025encrypti",
+      ".EncryptionType:\013UNENCRYPTED\0227\n\025encrypti" +
       "on_parameters\030\006 \001(\0132\030.wallet.ScryptParam" +
       "eters\022\022\n\007version\030\007 \001(\005:\0011\022$\n\textension\030\n" +
-      " \003(\0132\021.wallet.Extension\022\023\n\013description\030\013" +
+      " \003(\0132\021.wallet.Extension\022\023\n\013description\030\013",
       " \001(\t\022\031\n\021key_rotation_time\030\r \001(\004\022\031\n\004tags\030" +
       "\020 \003(\0132\013.wallet.Tag\0226\n\023transaction_signer" +
-      "s\030\021 \003(\0132\031.wallet.TransactionSigner\";\n\016En" +
-      "cryptionType\022\017\n\013UNENCRYPTED\020\001\022\030\n\024ENCRYPT" +
-      "ED_SCRYPT_AES\020\002\"R\n\014ExchangeRate\022\022\n\ncoin_" +
-      "value\030\001 \002(\003\022\022\n\nfiat_value\030\002 \002(\003\022\032\n\022fiat_" +
-      "currency_code\030\003 \002(\tB\035\n\023org.bitcoinj.wall",
-      "etB\006Protos"
+      "s\030\021 \003(\0132\031.wallet.TransactionSigner\022\036\n\023si" +
+      "gsRequiredToSpend\030\022 \001(\r:\0011\";\n\016Encryption" +
+      "Type\022\017\n\013UNENCRYPTED\020\001\022\030\n\024ENCRYPTED_SCRYP" +
+      "T_AES\020\002\"R\n\014ExchangeRate\022\022\n\ncoin_value\030\001 " +
+      "\002(\003\022\022\n\nfiat_value\030\002 \002(\003\022\032\n\022fiat_currency" +
+      "_code\030\003 \002(\tB\035\n\023org.bitcoinj.walletB\006Prot" +
+      "os"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_wallet_PeerAddress_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_wallet_PeerAddress_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_PeerAddress_descriptor,
+              new java.lang.String[] { "IpAddress", "Port", "Services", });
+          internal_static_wallet_EncryptedData_descriptor =
+            getDescriptor().getMessageTypes().get(1);
+          internal_static_wallet_EncryptedData_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_EncryptedData_descriptor,
+              new java.lang.String[] { "InitialisationVector", "EncryptedPrivateKey", });
+          internal_static_wallet_DeterministicKey_descriptor =
+            getDescriptor().getMessageTypes().get(2);
+          internal_static_wallet_DeterministicKey_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_DeterministicKey_descriptor,
+              new java.lang.String[] { "ChainCode", "Path", "IssuedSubkeys", "LookaheadSize", "IsFollowing", });
+          internal_static_wallet_Key_descriptor =
+            getDescriptor().getMessageTypes().get(3);
+          internal_static_wallet_Key_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_Key_descriptor,
+              new java.lang.String[] { "Type", "SecretBytes", "EncryptedData", "PublicKey", "Label", "CreationTimestamp", "DeterministicKey", "DeterministicSeed", "EncryptedDeterministicSeed", });
+          internal_static_wallet_Script_descriptor =
+            getDescriptor().getMessageTypes().get(4);
+          internal_static_wallet_Script_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_Script_descriptor,
+              new java.lang.String[] { "Program", "CreationTimestamp", });
+          internal_static_wallet_TransactionInput_descriptor =
+            getDescriptor().getMessageTypes().get(5);
+          internal_static_wallet_TransactionInput_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_TransactionInput_descriptor,
+              new java.lang.String[] { "TransactionOutPointHash", "TransactionOutPointIndex", "ScriptBytes", "Sequence", "Value", });
+          internal_static_wallet_TransactionOutput_descriptor =
+            getDescriptor().getMessageTypes().get(6);
+          internal_static_wallet_TransactionOutput_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_TransactionOutput_descriptor,
+              new java.lang.String[] { "Value", "ScriptBytes", "SpentByTransactionHash", "SpentByTransactionIndex", });
+          internal_static_wallet_TransactionConfidence_descriptor =
+            getDescriptor().getMessageTypes().get(7);
+          internal_static_wallet_TransactionConfidence_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_TransactionConfidence_descriptor,
+              new java.lang.String[] { "Type", "AppearedAtHeight", "OverridingTransaction", "Depth", "BroadcastBy", "Source", });
+          internal_static_wallet_Transaction_descriptor =
+            getDescriptor().getMessageTypes().get(8);
+          internal_static_wallet_Transaction_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_Transaction_descriptor,
+              new java.lang.String[] { "Version", "Hash", "Pool", "LockTime", "UpdatedAt", "TransactionInput", "TransactionOutput", "BlockHash", "BlockRelativityOffsets", "Confidence", "Purpose", "ExchangeRate", "Memo", });
+          internal_static_wallet_ScryptParameters_descriptor =
+            getDescriptor().getMessageTypes().get(9);
+          internal_static_wallet_ScryptParameters_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_ScryptParameters_descriptor,
+              new java.lang.String[] { "Salt", "N", "R", "P", });
+          internal_static_wallet_Extension_descriptor =
+            getDescriptor().getMessageTypes().get(10);
+          internal_static_wallet_Extension_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_Extension_descriptor,
+              new java.lang.String[] { "Id", "Data", "Mandatory", });
+          internal_static_wallet_Tag_descriptor =
+            getDescriptor().getMessageTypes().get(11);
+          internal_static_wallet_Tag_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_Tag_descriptor,
+              new java.lang.String[] { "Tag", "Data", });
+          internal_static_wallet_TransactionSigner_descriptor =
+            getDescriptor().getMessageTypes().get(12);
+          internal_static_wallet_TransactionSigner_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_TransactionSigner_descriptor,
+              new java.lang.String[] { "ClassName", "Data", });
+          internal_static_wallet_Wallet_descriptor =
+            getDescriptor().getMessageTypes().get(13);
+          internal_static_wallet_Wallet_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_Wallet_descriptor,
+              new java.lang.String[] { "NetworkIdentifier", "LastSeenBlockHash", "LastSeenBlockHeight", "LastSeenBlockTimeSecs", "Key", "Transaction", "WatchedScript", "EncryptionType", "EncryptionParameters", "Version", "Extension", "Description", "KeyRotationTime", "Tags", "TransactionSigners", "SigsRequiredToSpend", });
+          internal_static_wallet_ExchangeRate_descriptor =
+            getDescriptor().getMessageTypes().get(14);
+          internal_static_wallet_ExchangeRate_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_wallet_ExchangeRate_descriptor,
+              new java.lang.String[] { "CoinValue", "FiatValue", "FiatCurrencyCode", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {

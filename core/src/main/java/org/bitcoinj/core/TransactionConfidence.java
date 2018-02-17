@@ -17,12 +17,16 @@
 
 package org.bitcoinj.core;
 
-import com.google.common.collect.*;
-import com.google.common.util.concurrent.*;
+import org.bitcoinj.utils.ListenerRegistration;
+import org.bitcoinj.utils.Threading;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
-import org.bitcoinj.core.listeners.BlockChainListener;
-import org.bitcoinj.utils.*;
-import org.bitcoinj.wallet.Wallet;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 
 import javax.annotation.*;
 import java.util.*;
@@ -311,9 +315,8 @@ public class TransactionConfidence {
     /**
      * Returns a snapshot of {@link PeerAddress}es that announced the transaction.
      */
-    public Set<PeerAddress> getBroadcastBy() {
-        ListIterator<PeerAddress> iterator = broadcastBy.listIterator();
-        return Sets.newHashSet(iterator);
+    public ListIterator<PeerAddress> getBroadcastBy() {
+        return broadcastBy.listIterator();
     }
 
     /** Returns true if the given address has been seen via markBroadcastBy() */

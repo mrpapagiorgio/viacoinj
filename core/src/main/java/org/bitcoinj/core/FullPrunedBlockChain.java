@@ -146,8 +146,7 @@ public class FullPrunedBlockChain extends AbstractBlockChain {
     // TODO: Remove lots of duplicated code in the two connectTransactions
 
     // TODO: execute in order of largest transaction (by input count) first
-    ExecutorService scriptVerificationExecutor = Executors.newFixedThreadPool(
-            Runtime.getRuntime().availableProcessors(), new ContextPropagatingThreadFactory("Script verification"));
+    ExecutorService scriptVerificationExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     /**
      * A job submitted to the executor which verifies signatures.
@@ -261,12 +260,9 @@ public class FullPrunedBlockChain extends AbstractBlockChain {
                         // Coinbases can't be spent until they mature, to avoid re-orgs destroying entire transaction
                         // chains. The assumption is there will ~never be re-orgs deeper than the spendable coinbase
                         // chain depth.
-                        if (prevOut.isCoinbase()) {
-                            if (height - prevOut.getHeight() < params.getSpendableCoinbaseDepth()) {
-                                throw new VerificationException("Tried to spend coinbase at depth " + (height - prevOut.getHeight()));
-                            }
-                        }
-                        // TODO: Check we're not spending the genesis transaction here. Bitcoin Core won't allow it.
+                        if (height - prevOut.getHeight() < params.getSpendableCoinbaseDepth())
+                            throw new VerificationException("Tried to spend coinbase at depth " + (height - prevOut.getHeight()));
+                        // TODO: Check we're not spending the genesis transaction here. Satoshis code won't allow it.
                         valueIn = valueIn.add(prevOut.getValue());
                         if (verifyFlags.contains(VerifyFlag.P2SH)) {
                             if (prevOut.getScript().isPayToScriptHash())
@@ -393,7 +389,7 @@ public class FullPrunedBlockChain extends AbstractBlockChain {
                                     in.getOutpoint().getIndex());
                             if (prevOut == null)
                                 throw new VerificationException("Attempted spend of a non-existent or already spent output!");
-                            if (prevOut.isCoinbase() && newBlock.getHeight() - prevOut.getHeight() < params.getSpendableCoinbaseDepth())
+                            if (newBlock.getHeight() - prevOut.getHeight() < params.getSpendableCoinbaseDepth())
                                 throw new VerificationException("Tried to spend coinbase at depth " + (newBlock.getHeight() - prevOut.getHeight()));
                             valueIn = valueIn.add(prevOut.getValue());
                             if (verifyFlags.contains(VerifyFlag.P2SH)) {
